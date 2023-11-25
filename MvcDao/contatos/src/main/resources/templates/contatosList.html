@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<style>
+  body {
+  background-color: #adadad;
+  
+}
+
+h1{
+  text-align: center;
+  margin-top: 20px;
+  
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+  border: 1px solid #9c9c9c;
+  border-radius: 5px;
+}
+
+.centered-button {
+  background-color: #ff0000;
+  border-radius: 5px;
+  padding: 10px;
+  outline: none;
+  border: none;
+  text-align: center;
+  color: #fff;
+}
+
+a[href*='editarContato'] .fas.fa-pencil-alt, a[href*='excluirContato'] .fas.fa-trash {
+  color: #ff0000;
+}
+
+
+.centered-button:hover {
+  background-color: #bb4141;
+  cursor: pointer;
+}
+
+
+.container {
+  display: flex;
+  flex-direction: column; /* Novo */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+input[type=text], input[type=email], input[type=password] {
+  outline: none;
+  border: none;
+  color: #9500cf;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+form{
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  height: 350px;
+  text-align: center;
+  background-color: rgba(31, 31, 31, 0.8);
+  color: white;
+  border-radius: 10px;
+}
+
+form>div:nth-child(1){
+  margin-top: 50px;
+}
+
+form>div{
+  margin-bottom: 15px;
+}
+
+.password-container {
+  position: relative;
+}
+
+.password-container .fa-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+</style>
+
+<body>
+  <h1> Cadastros</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Nome</th>
+        <th scope="col">Email</th>
+        <th scope="col">Senha</th>
+        <th scope="col">Numero</th>
+        <th scope="col">Editar</th>
+        <th scope="col">Excluir</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="contato : ${contatos}">
+        <td th:text="${contato.nome}"></td>
+        <td th:text="${contato.email}"></td>
+        <td th:text="${contato.senha}"></td>
+        <td th:text="${contato.numero}"></td>
+        <td><a id="editLink" th:href="@{'/editarContato?email=' + ${contato.email}}"><i class="fas fa-pencil-alt"></i></a></td>
+        <td><a th:href="@{'/excluirContato?email=' + ${contato.email}}"><i class="fas fa-trash"></i></a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="container">
+  <button id="showFormButton" type="button" class="btn btn-primary centered-button">Cadastrar contato</button>
+  <form id="form" style="display: none;" method="POST" action="contatos" th:object="${contato}" class="menu">
+    <div>
+      <label for="formGroupExampleInput" class="form-label">Nome: </label>
+      <input type="text" class="form-control" th:field="*{nome}" name="nome" placeholder="Insira o nome">
+    </div>
+
+    <div>
+      <label for="exampleInputEmail1" class="form-label">Email: </label>
+      <input type="email" th:field="*{email}" class="form-control" name="email" aria-describedby="emailHelp" placeholder="Insira o e-mail">
+    </div>
+    <div class="password-container">
+      <label for="exampleInputPassword1" class="form-label">Senha: </label>
+      <input type="password" id="passwordInput" th:field="*{senha}" class="form-control" name="senha" placeholder="Insira a senha">
+      <i id="togglePassword" class="fas fa-eye"></i>
+    </div>
+
+    <div>
+      <label for="formGroupExampleInput" class="form-label">Numero: </label>
+      <input type="text" class="form-control" th:field="*{numero}" name="numero" placeholder="Insira o numero">
+    </div>
+
+    <button type="submit" class="btn btn-primary centered-button">Cadastrar</button>
+  </form>
+
+  <button id="showSearchButton" type="button" class="btn btn-primary centered-button">Pesquisar por nome</button>
+<div id="search" style="display: none;" class="menuPesquisa">
+    <form th:action="@{/contatosParametro}">
+      <label class="form-label">Faça sua Pesquisa por nome</label>
+      <input type="text" class="form-control" th:name="nome" placeholder="Insira o nome a ser pesquisado">
+      <button type="submit" class="btn btn-primary centered-button">Pesquisar</button>
+    </form>
+  </div>
+</div>
+
+  <script>
+    document.getElementById('showFormButton').addEventListener('click', function() {
+    var form = document.getElementById('form');
+    var buttonForm = document.getElementById('showFormButton');
+    if (form.style.display === 'block') {
+      form.style.display = 'none';
+      buttonForm.textContent = 'Cadastrar novo contato';
+    } else {
+      form.style.display = 'block';
+      buttonForm.textContent = 'Fechar Cadastro';
+    }
+  });
+  
+    document.getElementById('showSearchButton').addEventListener('click', function() {
+      var search = document.getElementById('search');
+      var buttonSearch = document.getElementById('showSearchButton');
+      if (search.style.display === 'block') {
+        search.style.display = 'none';
+        buttonSearch.textContent = 'Pesquisar por nome';
+      } else {
+        search.style.display = 'block';
+        buttonSearch.textContent = 'Fechar Pesquisa';
+      }
+    });
+
+    document.getElementById('togglePassword').addEventListener('click', function() {
+  var passwordInput = document.getElementById('passwordInput');
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+  } else {
+    passwordInput.type = 'password';
+  }
+});
+  </script>
+</body>
+</html>
